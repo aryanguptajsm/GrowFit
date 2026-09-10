@@ -68,6 +68,7 @@ function renderPage(pageName) {
     case 'exercise':  renderExercise();   break;
     case 'nutrition': renderNutrition();  break;
     case 'progress':  renderProgress();   break;
+    case 'journal':   renderJournal();    break;
     case 'more':      renderMore();       break;
   }
 }
