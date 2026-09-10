@@ -57,7 +57,7 @@ GrowFit/
 - [ ] Stage 3: Exercise tracking
 - [ ] Stage 4: Nutrition tracking
 - [ ] Stage 5: Progress charts
-- [ ] Stage 6: Journal
+- [x] Stage 6: Journal
 - [ ] Stage 7: Full localStorage persistence
 - [ ] Stage 8: PWA conversion
 - [ ] Stage 9: Node.js + Express backend
