@@ -336,6 +336,149 @@ const GrowFitStorage = {
   clearAll() {
     Object.values(STORAGE_KEYS).forEach(key => this.delete(key));
   },
+
+
+  // ── Adapter / Alias Methods ──────────────────────────────────
+  // These bridge the naming used in page JS files to the real API.
+
+  /** Alias for getUser() — used by nutrition.js, progress.js */
+  getProfile() {
+    return this.getUser();
+  },
+
+  /**
+   * Compute calorie + protein totals for a given date.
+   * Used by nutrition.js as getDailySummary(dateStr).
+   */
+  getDailySummary(dateStr) {
+    const foods = this.getFoodsForDate(dateStr);
+    let calories = 0, protein = 0, carbs = 0, fat = 0;
+    foods.forEach(f => {
+      calories += Number(f.calories) || 0;
+      protein  += Number(f.protein)  || 0;
+      carbs    += Number(f.carbs)    || 0;
+      fat      += Number(f.fat)      || 0;
+    });
+    return {
+      calories: Math.round(calories),
+      protein:  Math.round(protein),
+      carbs:    Math.round(carbs),
+      fat:      Math.round(fat),
+    };
+  },
+
+  /**
+   * Alias for getFoodsForDate() — used by nutrition.js as getFoodLogs(dateStr).
+   * Food items are stored with a `name` field; nutrition.js reads `foodName`,
+   * so we normalise the shape here.
+   */
+  getFoodLogs(dateStr) {
+    return this.getFoodsForDate(dateStr).map(f => ({
+      ...f,
+      foodName: f.foodName || f.name || '',
+    }));
+  },
+
+  /** Return the global FOOD_LIBRARY array — used by nutrition.js */
+  getFoodLibrary() {
+    return FOOD_LIBRARY;
+  },
+
+  // ── Workout (Exercise) Adapters ──────────────────────────────
+  // exercise.js uses "workout" terminology. These adapt to the
+  // underlying exercise storage which uses the same key array.
+
+  /**
+   * Return all exercise records shaped as workout objects.
+   * exercise.js reads: exerciseName, sets, reps, weight, durationMinutes, date, id
+   */
+  getWorkouts() {
+    return this.getExercises().map(e => ({
+      ...e,
+      exerciseName:    e.exerciseName || e.name || '',
+      durationMinutes: e.durationMinutes != null ? e.durationMinutes : (e.duration || 0),
+    }));
+  },
+
+  /**
+   * Save a workout entry from exercise.js.
+   * Adapts: exerciseName → name, durationMinutes → duration.
+   */
+  addWorkout(data) {
+    return this.addExercise({
+      name:            data.exerciseName || data.name || '',
+      exerciseName:    data.exerciseName || '',
+      sets:            data.sets || null,
+      reps:            data.reps || null,
+      weight:          data.weight || null,
+      duration:        data.durationMinutes || 0,
+      durationMinutes: data.durationMinutes || 0,
+      notes:           data.notes || '',
+      date:            data.date || getTodayDate(),
+    });
+  },
+
+  /** Alias for deleteExercise() */
+  deleteWorkout(id) {
+    this.deleteExercise(id);
+  },
+
+  // ── Weight Log Adapters ──────────────────────────────────────
+  // progress.js expects {id, weightKg, date} shape.
+
+  /** Return weight records mapped to {id, weightKg, date} */
+  getWeightLogs() {
+    return this.getWeightRecords().map(r => ({
+      ...r,
+      weightKg: r.weightKg != null ? r.weightKg : (r.weight || 0),
+    }));
+  },
+
+  /**
+   * Add a weight log entry.
+   * progress.js calls: GrowFitStorage.addWeightLog(weightKg, date)
+   */
+  addWeightLog(weightKg, date) {
+    return this.addWeightRecord({
+      weight:   weightKg,
+      weightKg: weightKg,
+      date:     date || getTodayDate(),
+      notes:    '',
+    });
+  },
+
+  /** Alias for deleteWeightRecord() */
+  deleteWeightLog(id) {
+    this.deleteWeightRecord(id);
+  },
+
+  // ── Journal Adapters ─────────────────────────────────────────
+  // journal.js uses sleepHours; the core storage uses sleep.
+
+  /** Return journal entries with sleepHours normalised */
+  getJournals() {
+    return this.getJournalEntries().map(j => ({
+      ...j,
+      sleepHours: j.sleepHours != null ? j.sleepHours : (j.sleep || null),
+    }));
+  },
+
+  /**
+   * Save a journal entry from journal.js.
+   * Adapts: sleepHours → sleep (and keeps sleepHours too for back-compat).
+   */
+  addJournal(entry) {
+    return this.addJournalEntry({
+      ...entry,
+      sleep:      entry.sleep      != null ? entry.sleep      : (entry.sleepHours || null),
+      sleepHours: entry.sleepHours != null ? entry.sleepHours : (entry.sleep      || null),
+    });
+  },
+
+  /** Alias for deleteJournalEntry() */
+  deleteJournal(id) {
+    this.deleteJournalEntry(id);
+  },
 };
 
 

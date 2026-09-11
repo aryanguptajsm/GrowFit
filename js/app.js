@@ -61,15 +61,38 @@ function navigate(pageName) {
 
 /**
  * Call the appropriate render function for a page.
+ * Wrapped in a try/catch so a JS error shows a friendly error state
+ * instead of a blank page.
  */
 function renderPage(pageName) {
-  switch (pageName) {
-    case 'home':      renderDashboard();  break;
-    case 'exercise':  renderExercise();   break;
-    case 'nutrition': renderNutrition();  break;
-    case 'progress':  renderProgress();   break;
-    case 'journal':   renderJournal();    break;
-    case 'more':      renderMore();       break;
+  try {
+    switch (pageName) {
+      case 'home':      renderDashboard();  break;
+      case 'exercise':  renderExercise();   break;
+      case 'nutrition': renderNutrition();  break;
+      case 'progress':  renderProgress();   break;
+      case 'journal':   renderJournal();    break;
+      case 'more':      renderMore();       break;
+    }
+  } catch (err) {
+    console.error(`[GrowFit] renderPage('${pageName}') threw:`, err);
+    const pageEl = document.getElementById('page-' + pageName);
+    if (pageEl) {
+      pageEl.innerHTML = `
+        <div class="empty-state" style="padding-top:var(--space-10);">
+          <div class="empty-state__icon" style="background:rgba(248,113,113,0.12);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <h3 class="empty-state__title" style="color:#f87171;">Something went wrong</h3>
+          <p class="empty-state__desc">Could not load this page. Try navigating away and back.</p>
+          <p style="font-size:var(--font-xs); color:var(--text-muted); margin-top:var(--space-3); font-family:monospace;">${escapeHTML(err.message)}</p>
+        </div>
+      `;
+    }
   }
 }
 
@@ -236,9 +259,14 @@ function initApp() {
   // Initialize default data if first launch
   GrowFitStorage.init();
 
-  // Set up nav click handlers
+  // Set up nav click handlers with micro-animation
   DOM.navItems.forEach(item => {
     item.addEventListener('click', () => {
+      // Tiny scale pop feedback
+      item.style.transform = 'scale(0.88)';
+      requestAnimationFrame(() => {
+        setTimeout(() => { item.style.transform = ''; }, 120);
+      });
       navigate(item.dataset.page);
     });
   });

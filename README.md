@@ -53,7 +53,7 @@ GrowFit/
 ## Roadmap
 
 - [x] Stage 1: Dashboard UI
-- [ ] Stage 2: Navigation & page sections
+- [x] Stage 2: Navigation & page sections
 - [ ] Stage 3: Exercise tracking
 - [ ] Stage 4: Nutrition tracking
 - [ ] Stage 5: Progress charts

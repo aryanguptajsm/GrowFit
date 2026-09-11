@@ -1,58 +1,123 @@
 /**
- * GrowFit — Nutrition Page (Stage 4 Implementation)
- * Allows logging food entries, viewing daily log summaries, selecting common Indian foods, and tracking protein/calories.
+ * GrowFit — Nutrition Page (Stage 2)
+ *
+ * Renders:
+ *  - Page header with "Log Meal" CTA
+ *  - Today's calorie + protein stat cards with progress bars
+ *  - Macro breakdown bar (protein / carbs / fat)
+ *  - Today's food log grouped by meal type
+ *
+ * Storage: uses GrowFitStorage adapter methods
+ * (getProfile, getDailySummary, getFoodLogs, getFoodLibrary, addFood, deleteFood)
  */
 
+// ─── Render Nutrition Page ────────────────────────────────────
+
 function renderNutrition() {
-  const container = document.getElementById('page-nutrition');
-  const todayStr = new Date().toISOString().split('T')[0];
-  const dailySummary = GrowFitStorage.getDailySummary(todayStr);
-  const foodLog = GrowFitStorage.getFoodLogs(todayStr);
-  const profile = GrowFitStorage.getProfile();
+  const container    = document.getElementById('page-nutrition');
+  const todayStr     = getTodayDate();
+  const profile      = GrowFitStorage.getProfile();
+  const summary      = GrowFitStorage.getDailySummary(todayStr);
+  const foodLog      = GrowFitStorage.getFoodLogs(todayStr);
 
-  const calorieGoal = profile.targetCalories || 2500;
-  const proteinGoal = profile.targetProtein || 100;
+  const calorieGoal  = profile.targetCalories || 2500;
+  const proteinGoal  = profile.targetProtein  || 100;
 
-  const calPercent = Math.min(100, Math.round((dailySummary.calories / calorieGoal) * 100));
-  const protPercent = Math.min(100, Math.round((dailySummary.protein / proteinGoal) * 100));
+  const calPct  = Math.min(100, Math.round((summary.calories / calorieGoal) * 100));
+  const protPct = Math.min(100, Math.round((summary.protein  / proteinGoal) * 100));
+
+  // ── Macro bar proportions
+  const macroTotal = summary.protein + summary.carbs + summary.fat || 1;
+  const protW  = Math.round((summary.protein / macroTotal) * 100);
+  const carbW  = Math.round((summary.carbs   / macroTotal) * 100);
+  const fatW   = 100 - protW - carbW;
+
+  // ── Group food log by meal type
+  const mealOrder  = ['breakfast', 'lunch', 'snack', 'dinner'];
+  const mealLabels = { breakfast: '🌅 Breakfast', lunch: '☀️ Lunch', snack: '🍪 Snack', dinner: '🌙 Dinner' };
+  const grouped = {};
+  mealOrder.forEach(m => { grouped[m] = []; });
+  foodLog.forEach(item => {
+    const type = (item.mealType || 'snack').toLowerCase();
+    if (!grouped[type]) grouped[type] = [];
+    grouped[type].push(item);
+  });
+
+  const trashSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+    <polyline points="3 6 5 6 21 6"></polyline>
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+  </svg>`;
 
   container.innerHTML = `
+
+    <!-- ── Header ──────────────────────────────────────────── -->
     <div class="page-header animate-in">
       <div>
-        <h1 class="page-header__title">Nutrition Tracker</h1>
-        <p class="page-header__sub">Track meals & fuel your progress</p>
+        <h1 class="page-header__title">Nutrition</h1>
+        <p class="page-header__sub">Fuel your gains every day</p>
       </div>
-      <button class="btn btn--primary" onclick="openLogFoodModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+      <button class="btn btn--primary" id="log-food-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
           <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
         </svg>
         Log Meal
       </button>
     </div>
 
-    <!-- Daily Progress Cards -->
-    <div class="stats-grid animate-in" style="margin-bottom: var(--space-4);">
-      <div class="stat-card">
-        <span class="stat-card__label">Calories Today</span>
-        <span class="stat-card__value">${dailySummary.calories} <span style="font-size:0.8rem; font-weight:normal;">/ ${calorieGoal} kcal</span></span>
-        <div style="width: 100%; background: var(--border-color); height: 6px; border-radius: 3px; margin-top: 8px; overflow:hidden;">
-          <div style="width: ${calPercent}%; background: var(--color-accent); height: 100%;"></div>
+    <!-- ── Calorie & Protein Cards ──────────────────────────── -->
+    <div class="stats-grid animate-in" style="margin-bottom:var(--space-4);">
+      <div class="stat-card ${calPct >= 100 ? 'card--accent' : ''}">
+        <span class="stat-card__label">🔥 Calories Today</span>
+        <span class="stat-card__value">${summary.calories}
+          <span style="font-size:var(--font-sm); font-weight:400; color:var(--text-muted);">/ ${calorieGoal}</span>
+        </span>
+        <div class="stat-card__bar">
+          <div class="stat-card__bar-fill" id="cal-bar" style="width:0%"></div>
         </div>
+        <span style="font-size:var(--font-xs); color:var(--text-muted);">${calPct}% of daily target</span>
       </div>
-
       <div class="stat-card">
-        <span class="stat-card__label">Protein Today</span>
-        <span class="stat-card__value">${dailySummary.protein} <span style="font-size:0.8rem; font-weight:normal;">/ ${proteinGoal} g</span></span>
-        <div style="width: 100%; background: var(--border-color); height: 6px; border-radius: 3px; margin-top: 8px; overflow:hidden;">
-          <div style="width: ${protPercent}%; background: var(--color-success); height: 100%;"></div>
+        <span class="stat-card__label">🥚 Protein Today</span>
+        <span class="stat-card__value" style="color:var(--accent)">${summary.protein}g
+          <span style="font-size:var(--font-sm); font-weight:400; color:var(--text-muted);">/ ${proteinGoal}g</span>
+        </span>
+        <div class="stat-card__bar">
+          <div class="stat-card__bar-fill stat-card__bar-fill--protein" id="prot-bar" style="width:0%"></div>
         </div>
+        <span style="font-size:var(--font-xs); color:var(--text-muted);">${protPct}% of daily target</span>
       </div>
     </div>
 
-    <!-- Food Log List -->
-    <div class="section-title animate-in" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--space-3);">
-      <h2>Today's Food Log</h2>
-      <span style="font-size:0.85rem; color:var(--text-muted);">${formatDate(todayStr)}</span>
+    <!-- ── Macro Breakdown ───────────────────────────────────── -->
+    ${summary.calories > 0 ? `
+      <div class="card animate-in" style="margin-bottom:var(--space-5);">
+        <div class="card__label"><span class="card__label-icon">📊</span> Macros</div>
+        <div class="macro-bar">
+          <div class="macro-bar__segment macro-bar__segment--protein" style="width:${protW}%"></div>
+          <div class="macro-bar__segment macro-bar__segment--carbs"   style="width:${carbW}%"></div>
+          <div class="macro-bar__segment macro-bar__segment--fat"     style="width:${Math.max(fatW, 0)}%"></div>
+        </div>
+        <div class="macro-legend">
+          <div class="macro-legend__item">
+            <div class="macro-legend__dot macro-legend__dot--protein"></div>
+            Protein ${summary.protein}g
+          </div>
+          <div class="macro-legend__item">
+            <div class="macro-legend__dot macro-legend__dot--carbs"></div>
+            Carbs ${summary.carbs}g
+          </div>
+          <div class="macro-legend__item">
+            <div class="macro-legend__dot macro-legend__dot--fat"></div>
+            Fat ${summary.fat}g
+          </div>
+        </div>
+      </div>
+    ` : ''}
+
+    <!-- ── Today's Food Log ──────────────────────────────────── -->
+    <div class="section-header animate-in">
+      <h2>Today's Log</h2>
+      <span class="section-header__label">${formatDate(todayStr)}</span>
     </div>
 
     ${foodLog.length === 0 ? `
@@ -64,144 +129,172 @@ function renderNutrition() {
           </svg>
         </div>
         <h3 class="empty-state__title">No Meals Logged Today</h3>
-        <p class="empty-state__desc">Track what you eat to ensure you're getting sufficient calories and protein!</p>
-        <button class="btn btn--primary" onclick="openLogFoodModal()">Log Meal Now</button>
+        <p class="empty-state__desc">Track what you eat to hit your calorie and protein targets.</p>
+        <button class="btn btn--primary" style="margin-top:var(--space-4);" id="log-food-empty-btn">Log Your First Meal</button>
       </div>
     ` : `
-      <div class="log-list animate-in">
-        ${foodLog.slice().reverse().map(item => `
-          <div class="log-item" style="display:flex; justify-content:space-between; align-items:center; background: var(--bg-card); padding: var(--space-3); border-radius: var(--radius-md); margin-bottom: var(--space-2); border: 1px solid var(--border-color);">
-            <div>
-              <div style="font-weight: 600; color: var(--text-primary);">${escapeHTML(item.foodName)}</div>
-              <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">
-                ${item.calories || 0} kcal · ${item.protein || 0}g protein 
-                ${item.servings ? ` (${item.servings} serving${item.servings > 1 ? 's' : ''})` : ''}
+      <div class="log-list animate-in" id="food-log-list">
+        ${mealOrder.map(mealType => {
+          const items = grouped[mealType] || [];
+          if (!items.length) return '';
+          const mealCals = items.reduce((s, f) => s + (Number(f.calories) || 0), 0);
+          return `
+            <div style="margin-bottom:var(--space-4);">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-2);">
+                <span style="font-size:var(--font-sm); font-weight:600; color:var(--text-secondary);">${mealLabels[mealType]}</span>
+                <span style="font-size:var(--font-xs); color:var(--text-muted);">${mealCals} kcal</span>
               </div>
-              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">${item.mealType || 'Meal'}</div>
+              ${items.map(item => `
+                <div class="log-item">
+                  <div class="log-item__main">
+                    <div class="log-item__title">${escapeHTML(item.foodName || item.name || '—')}</div>
+                    <div class="log-item__sub">
+                      ${item.calories || 0} kcal · ${item.protein || 0}g P · ${item.carbs || 0}g C · ${item.fat || 0}g F
+                    </div>
+                  </div>
+                  <div class="log-item__right">
+                    <button class="btn-icon-danger" data-delete-food="${item.id}" title="Delete">
+                      ${trashSVG}
+                    </button>
+                  </div>
+                </div>
+              `).join('')}
             </div>
-            <button class="btn-icon" onclick="deleteFoodLog('${item.id}')" title="Delete entry" style="color: var(--color-danger); background:transparent; border:none; cursor:pointer;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-              </svg>
-            </button>
-          </div>
-        `).join('')}
+          `;
+        }).join('')}
       </div>
     `}
   `;
-}
 
-/**
- * Open Modal to Log Food
- */
-function openLogFoodModal() {
-  const foods = GrowFitStorage.getFoodLibrary();
-  const today = new Date().toISOString().split('T')[0];
+  // Animate progress bars
+  requestAnimationFrame(() => {
+    const calBar  = document.getElementById('cal-bar');
+    const protBar = document.getElementById('prot-bar');
+    if (calBar)  calBar.style.width  = calPct  + '%';
+    if (protBar) protBar.style.width = protPct + '%';
+  });
 
-  const html = `
-    <form id="food-form" onsubmit="handleSaveFood(event)">
-      <div class="form-group">
-        <label class="form-label" for="food-select">Select Food / Dish</label>
-        <select class="form-control" id="food-select" required onchange="handleFoodSelectChange(this)">
-          <option value="">-- Choose Food from Library --</option>
-          ${foods.map(f => `<option value="${escapeHTML(f.name)}" data-cal="${f.calories}" data-prot="${f.protein}">${escapeHTML(f.name)} (~${f.calories} kcal, ${f.protein}g protein)</option>`).join('')}
-          <option value="CUSTOM">+ Add Custom Item</option>
-        </select>
-      </div>
+  // ── Event Listeners ────────────────────────────────────────
+  document.getElementById('log-food-btn').addEventListener('click', openLogFoodModal);
 
-      <div class="form-group" id="custom-food-group" style="display:none;">
-        <label class="form-label" for="food-custom-name">Custom Food Name</label>
-        <input type="text" class="form-control" id="food-custom-name" placeholder="e.g. Protein Smoothie">
-      </div>
+  const emptyBtn = document.getElementById('log-food-empty-btn');
+  if (emptyBtn) emptyBtn.addEventListener('click', openLogFoodModal);
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3);">
-        <div class="form-group">
-          <label class="form-label" for="food-cal">Calories (kcal)</label>
-          <input type="number" class="form-control" id="food-cal" min="0" placeholder="e.g. 350" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="food-prot">Protein (g)</label>
-          <input type="number" class="form-control" id="food-prot" min="0" step="0.5" placeholder="e.g. 15" required>
-        </div>
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3);">
-        <div class="form-group">
-          <label class="form-label" for="food-meal">Meal Type</label>
-          <select class="form-control" id="food-meal">
-            <option value="Breakfast">Breakfast</option>
-            <option value="Lunch">Lunch</option>
-            <option value="Dinner">Dinner</option>
-            <option value="Snack" selected>Snack</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="food-date">Date</label>
-          <input type="date" class="form-control" id="food-date" value="${today}" required>
-        </div>
-      </div>
-
-      <button type="submit" class="btn btn--primary btn--full" style="margin-top: var(--space-3);">Save Food Log</button>
-    </form>
-  `;
-
-  openModal('Log Meal / Food', html);
-}
-
-function handleFoodSelectChange(select) {
-  const customGroup = document.getElementById('custom-food-group');
-  const calInput = document.getElementById('food-cal');
-  const protInput = document.getElementById('food-prot');
-
-  if (select.value === 'CUSTOM') {
-    customGroup.style.display = 'block';
-    document.getElementById('food-custom-name').required = true;
-    calInput.value = '';
-    protInput.value = '';
-  } else {
-    customGroup.style.display = 'none';
-    document.getElementById('food-custom-name').required = false;
-    const selectedOpt = select.options[select.selectedIndex];
-    if (selectedOpt && selectedOpt.dataset.cal) {
-      calInput.value = selectedOpt.dataset.cal;
-      protInput.value = selectedOpt.dataset.prot;
-    }
-  }
-}
-
-function handleSaveFood(e) {
-  e.preventDefault();
-  const select = document.getElementById('food-select');
-  let name = select.value;
-  if (name === 'CUSTOM') {
-    name = document.getElementById('food-custom-name').value.trim();
-  }
-
-  if (!name) {
-    showToast('Please select or enter a food name', 'error');
-    return;
-  }
-
-  const foodData = {
-    foodName: name,
-    calories: parseInt(document.getElementById('food-cal').value) || 0,
-    protein: parseFloat(document.getElementById('food-prot').value) || 0,
-    mealType: document.getElementById('food-meal').value,
-    date: document.getElementById('food-date').value
-  };
-
-  GrowFitStorage.addFood(foodData);
-  closeModal();
-  showToast('Meal logged successfully!');
-  renderNutrition();
-}
-
-function deleteFoodLog(id) {
-  showConfirmDialog('Are you sure you want to delete this food log entry?', () => {
-    GrowFitStorage.deleteFood(id);
-    showToast('Food entry deleted');
-    renderNutrition();
+  container.addEventListener('click', e => {
+    const btn = e.target.closest('[data-delete-food]');
+    if (!btn) return;
+    showConfirmDialog('Delete this food entry?', () => {
+      GrowFitStorage.deleteFood(btn.dataset.deleteFood);
+      showToast('Food entry deleted', 'info');
+      renderNutrition();
+    });
   });
 }
 
+
+// ─── Log Food Modal ───────────────────────────────────────────
+
+function openLogFoodModal() {
+  const foods = GrowFitStorage.getFoodLibrary();
+  const hour  = new Date().getHours();
+  const defaultMeal = hour < 10 ? 'Breakfast' : hour < 14 ? 'Lunch' : hour < 17 ? 'Snack' : 'Dinner';
+
+  const pickerHTML = foods.map(f =>
+    `<button type="button" class="food-pick-btn"
+       data-cal="${f.calories}" data-prot="${f.protein}"
+       data-carbs="${f.carbs || 0}" data-fat="${f.fat || 0}"
+       data-name="${escapeHTML(f.name)}">${escapeHTML(f.name)}</button>`
+  ).join('');
+
+  const html = `
+    <p class="form-hint" style="margin-bottom:var(--space-3);">Tap a food to auto-fill, or type your own.</p>
+    <div class="food-picker" id="food-picker">${pickerHTML}</div>
+
+    <form id="food-form">
+      <div class="form-group">
+        <label class="form-label" for="food-name">Food / Dish Name *</label>
+        <input type="text" class="form-control" id="food-name"
+               placeholder="e.g. Dal, Oats, Chicken Breast…" required>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3);">
+        <div class="form-group">
+          <label class="form-label" for="food-cal">Calories (kcal)</label>
+          <input type="number" class="form-control" id="food-cal" min="0" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="food-prot">Protein (g)</label>
+          <input type="number" class="form-control" id="food-prot" min="0" step="0.5" placeholder="0">
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3);">
+        <div class="form-group">
+          <label class="form-label" for="food-carbs">Carbs (g)</label>
+          <input type="number" class="form-control" id="food-carbs" min="0" step="0.5" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="food-fat">Fat (g)</label>
+          <input type="number" class="form-control" id="food-fat" min="0" step="0.5" placeholder="0">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="food-meal">Meal Type</label>
+        <select class="form-control" id="food-meal">
+          <option value="Breakfast" ${defaultMeal === 'Breakfast' ? 'selected' : ''}>🌅 Breakfast</option>
+          <option value="Lunch"     ${defaultMeal === 'Lunch'     ? 'selected' : ''}>☀️ Lunch</option>
+          <option value="Snack"     ${defaultMeal === 'Snack'     ? 'selected' : ''}>🍪 Snack</option>
+          <option value="Dinner"    ${defaultMeal === 'Dinner'    ? 'selected' : ''}>🌙 Dinner</option>
+        </select>
+      </div>
+
+      <p class="form-hint">Nutrition values are approximate.</p>
+
+      <div class="modal__footer" style="padding:var(--space-4) 0 0; border:none;">
+        <button type="button" class="btn btn--secondary btn--full" id="food-cancel">Cancel</button>
+        <button type="submit" class="btn btn--primary btn--full">Save</button>
+      </div>
+    </form>
+  `;
+
+  openModal('Log Meal', html);
+
+  document.getElementById('food-cancel').addEventListener('click', closeModal);
+
+  // Food picker — fill in fields
+  document.getElementById('food-picker').addEventListener('click', e => {
+    const btn = e.target.closest('.food-pick-btn');
+    if (!btn) return;
+    document.getElementById('food-name').value  = btn.dataset.name;
+    document.getElementById('food-cal').value   = btn.dataset.cal;
+    document.getElementById('food-prot').value  = btn.dataset.prot;
+    document.getElementById('food-carbs').value = btn.dataset.carbs;
+    document.getElementById('food-fat').value   = btn.dataset.fat;
+  });
+
+  document.getElementById('food-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const name     = document.getElementById('food-name').value.trim();
+    const calories = Number(document.getElementById('food-cal').value)   || 0;
+    const protein  = Number(document.getElementById('food-prot').value)  || 0;
+    const carbs    = Number(document.getElementById('food-carbs').value) || 0;
+    const fat      = Number(document.getElementById('food-fat').value)   || 0;
+    const mealType = document.getElementById('food-meal').value;
+
+    if (!name) {
+      showToast('Please enter a food name', 'warning');
+      return;
+    }
+
+    GrowFitStorage.addFood({
+      name, foodName: name, calories, protein, carbs, fat,
+      mealType: mealType.toLowerCase(),
+      date: getTodayDate(),
+    });
+
+    closeModal();
+    showToast(`${name} logged! 🍽️`, 'success');
+    renderNutrition();
+  });
+}

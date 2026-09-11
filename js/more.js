@@ -46,31 +46,11 @@ function renderMore() {
     <!-- About -->
     <div class="card animate-in" style="text-align: center;">
       <p style="font-size: var(--font-lg); font-weight: 700; margin-bottom: var(--space-1);">🌱 GrowFit</p>
-      <p class="text-muted text-sm">Version 1.0 · Stage 1</p>
+      <p class="text-muted text-sm">Version 1.0 · Stage 2</p>
       <p class="text-muted text-sm mt-2">Track small improvements consistently.</p>
     </div>
 
-    <style>
-      .settings-item {
-        display: flex;
-        align-items: center;
-        gap: var(--space-3);
-        width: 100%;
-        padding: var(--space-4) var(--space-5);
-        background: none;
-        border: none;
-        border-bottom: 1px solid var(--border);
-        color: var(--text-primary);
-        font-size: var(--font-base);
-        font-weight: 500;
-        cursor: pointer;
-        transition: background var(--transition-fast);
-        text-align: left;
-        font-family: var(--font-family);
-      }
-      .settings-item:last-child { border-bottom: none; }
-      .settings-item:hover { background: var(--bg-elevated); }
-    </style>
+
   `;
 }
 

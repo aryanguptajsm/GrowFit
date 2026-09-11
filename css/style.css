@@ -1306,3 +1306,428 @@ input[type="number"] {
 .mt-4        { margin-top: var(--space-4); }
 .mb-2        { margin-bottom: var(--space-2); }
 .mb-4        { margin-bottom: var(--space-4); }
+
+
+/* ─── Stat Card ────────────────────────────────────────────── */
+/* Used by exercise.js, nutrition.js, progress.js */
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  transition: border-color var(--transition-fast);
+}
+
+.stat-card:hover {
+  border-color: var(--border-hover);
+}
+
+.stat-card__label {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stat-card__value {
+  font-size: var(--font-2xl);
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.stat-card__bar {
+  width: 100%;
+  background: var(--bg-input);
+  height: 5px;
+  border-radius: var(--radius-full);
+  margin-top: var(--space-2);
+  overflow: hidden;
+}
+
+.stat-card__bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card__bar-fill--protein {
+  background: linear-gradient(90deg, #1d4ed8, #60a5fa);
+}
+
+
+/* ─── Log Item (Workout / Food / Weight list rows) ─────────── */
+.log-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-card);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-2);
+  border: 1px solid var(--border);
+  transition: border-color var(--transition-fast);
+  gap: var(--space-3);
+}
+
+.log-item:hover {
+  border-color: var(--border-hover);
+}
+
+.log-item__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.log-item__title {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: var(--font-base);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.log-item__sub {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.log-item__meta {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.log-item__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.log-item__value {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.btn-icon-danger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--error);
+  opacity: 0.5;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+}
+
+.btn-icon-danger:hover {
+  opacity: 1;
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.btn-icon-danger svg {
+  width: 16px;
+  height: 16px;
+}
+
+
+/* ─── Log List Wrapper ─────────────────────────────────────── */
+.log-list {
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* ─── form-control alias for form-input ───────────────────── */
+.form-control {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  outline: none;
+  appearance: none;
+}
+
+.form-control:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-muted);
+}
+
+.form-control::placeholder {
+  color: var(--text-muted);
+}
+
+select.form-control {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-4) center;
+  padding-right: var(--space-8);
+  cursor: pointer;
+}
+
+select.form-control option {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 80px;
+}
+
+
+/* ─── Tab Bar ──────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  gap: var(--space-1);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-1);
+  margin-bottom: var(--space-5);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+  text-align: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.tab-btn:hover {
+  color: var(--text-secondary);
+  background: var(--bg-input);
+}
+
+.tab-btn.active {
+  background: var(--accent);
+  color: var(--text-inverse);
+}
+
+
+/* ─── Page Header Subtitle ─────────────────────────────────── */
+.page-header__sub {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+
+/* ─── Section Header Row (title + date/label) ─────────────── */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.section-header h2 {
+  font-size: var(--font-md);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.section-header__label {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+}
+
+
+/* ─── Color danger variable alias ──────────────────────────── */
+:root {
+  --color-danger: var(--error);
+  --color-accent: var(--accent);
+  --color-success: var(--success);
+  --border-color: var(--border);
+  --bg-dark: var(--bg-primary);
+  --font-2xl: 1.5rem;
+  --transition-fast: 150ms ease;
+}
+
+
+/* ─── Chart area ───────────────────────────────────────────── */
+.chart-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.chart-container h3 {
+  font-size: var(--font-base);
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-3);
+}
+
+
+/* ─── Macro bar (nutrition) ────────────────────────────────── */
+.macro-bar {
+  display: flex;
+  height: 8px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: var(--space-2);
+  gap: 2px;
+}
+
+.macro-bar__segment {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.macro-bar__segment--protein { background: #60a5fa; }
+.macro-bar__segment--carbs   { background: var(--accent); }
+.macro-bar__segment--fat     { background: var(--warning); }
+
+.macro-legend {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.macro-legend__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+}
+
+.macro-legend__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.macro-legend__dot--protein { background: #60a5fa; }
+.macro-legend__dot--carbs   { background: var(--accent); }
+.macro-legend__dot--fat     { background: var(--warning); }
+
+
+/* ─── Streak Badge ─────────────────────────────────────────── */
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.15), rgba(74, 222, 128, 0.05));
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-full);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+
+/* ─── Journal entry card ───────────────────────────────────── */
+.journal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-bottom: var(--space-2);
+  transition: border-color var(--transition-fast);
+}
+
+.journal-card:hover {
+  border-color: var(--border-hover);
+}
+
+.journal-card--today {
+  border-color: var(--border-accent);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(74, 222, 128, 0.03) 100%);
+}
+
+.journal-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.journal-card__date {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: var(--font-sm);
+}
+
+.journal-card__mood {
+  font-size: var(--font-lg);
+}
+
+.journal-card__stats {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+}
+
+.journal-card__notes {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.journal-card__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-2);
+}
+
+
+/* ─── Settings List Item ───────────────────────────────────── */
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4) var(--space-5);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: var(--font-base);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  text-align: left;
+  font-family: var(--font-family);
+}
+
+.settings-item:last-child {
+  border-bottom: none;
+}
+
+.settings-item:hover {
+  background: var(--bg-elevated);
+}
+
