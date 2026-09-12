@@ -1731,3 +1731,504 @@ textarea.form-control {
   background: var(--bg-elevated);
 }
 
+
+
+/* ══════════════════════════════════════════════════════════════
+   STAGE 3 — EXERCISE TRACKER
+   ══════════════════════════════════════════════════════════════ */
+
+/* ─── Weekly Activity Bar ─────────────────────────────────── */
+.ex-weekly {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-4);
+}
+
+.ex-weekly__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.ex-weekly__title {
+  font-size: var(--font-sm);
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.ex-weekly__stat {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+}
+
+.ex-weekly__dots {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.ex-weekly__day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  flex: 1;
+}
+
+.ex-weekly__dot {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--bg-input);
+  border: 2px solid var(--border);
+  transition: all var(--transition-fast);
+}
+
+.ex-weekly__dot--active {
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.35);
+}
+
+.ex-weekly__dot--today {
+  border-color: var(--accent);
+}
+
+.ex-weekly__dot--today:not(.ex-weekly__dot--active) {
+  background: var(--accent-muted);
+}
+
+.ex-weekly__label {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.ex-weekly__label--today {
+  color: var(--accent);
+}
+
+
+/* ─── Today's Session Summary ─────────────────────────────── */
+.ex-today {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.ex-today__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.ex-today__heading {
+  font-size: var(--font-sm);
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.ex-today__empty {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+}
+
+.ex-today__chips {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.ex-today__chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg-input);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  min-width: 56px;
+}
+
+.ex-today__chip-val {
+  font-size: var(--font-xl);
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.ex-today__chip-lbl {
+  font-size: 9px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+
+/* ─── Category Tabs (Exercise) ────────────────────────────── */
+.ex-cat-tabs {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: var(--space-1);
+  margin-bottom: var(--space-4);
+  scrollbar-width: none;
+}
+
+.ex-cat-tabs::-webkit-scrollbar { display: none; }
+
+.ex-cat-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.ex-cat-tab:hover {
+  border-color: var(--border-hover);
+  color: var(--text-secondary);
+}
+
+.ex-cat-tab--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #000 !important;
+}
+
+.ex-cat-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-full);
+}
+
+.ex-cat-count {
+  background: rgba(255,255,255,0.15);
+  border-radius: var(--radius-full);
+  padding: 1px 6px;
+  font-size: 9px;
+  line-height: 14px;
+}
+
+.ex-cat-tab--active .ex-cat-count {
+  background: rgba(0,0,0,0.15);
+}
+
+
+/* ─── Exercise Library Grid ────────────────────────────────── */
+.ex-library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.ex-card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+  overflow: hidden;
+}
+
+.ex-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+}
+
+.ex-card:active {
+  transform: translateY(0);
+}
+
+.ex-card__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.ex-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.ex-card__name {
+  font-size: var(--font-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+
+.ex-card__muscles {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: var(--space-2);
+}
+
+.ex-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.ex-card__cat {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.ex-card__pr {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: var(--radius-full);
+  padding: 2px 6px;
+}
+
+
+/* ─── Personal Records Grid ───────────────────────────────── */
+.ex-pr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.ex-pr-card {
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(245,158,11,0.05) 100%);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.ex-pr-card__icon {
+  color: #f59e0b;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ex-pr-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.ex-pr-card__name {
+  font-size: var(--font-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ex-pr-card__val {
+  font-size: var(--font-xl);
+  font-weight: 800;
+  color: #f59e0b;
+  line-height: 1.1;
+}
+
+.ex-pr-card__detail {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+}
+
+.ex-pr-card__date {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: flex-end;
+}
+
+
+/* ─── History Log — Date Groups ───────────────────────────── */
+.ex-date-group {
+  margin-bottom: var(--space-4);
+}
+
+.ex-date-group__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) var(--space-1);
+  margin-bottom: var(--space-2);
+}
+
+.ex-date-group__date {
+  font-size: var(--font-xs);
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ex-date-group__count {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+}
+
+.ex-log-item {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-2);
+  overflow: hidden;
+  transition: border-color var(--transition-fast);
+  gap: 0;
+}
+
+.ex-log-item:hover {
+  border-color: var(--border-hover);
+}
+
+.ex-log-item__accent {
+  width: 4px;
+  align-self: stretch;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.ex-log-item__body {
+  flex: 1;
+  padding: var(--space-3) var(--space-4);
+  min-width: 0;
+}
+
+.ex-log-item__name {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ex-log-item__detail {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.ex-log-item .btn-icon-danger {
+  margin-right: var(--space-3);
+}
+
+/* ─── PR Badge (inline) ────────────────────────────────────── */
+.ex-pr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #f59e0b;
+  background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: var(--radius-full);
+  padding: 1px 6px;
+}
+
+
+/* ─── History Tab Pills ────────────────────────────────────── */
+.ex-hist-tabs {
+  display: flex;
+  gap: var(--space-1);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  padding: 3px;
+}
+
+.ex-hist-tab {
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition: all var(--transition-fast);
+}
+
+.ex-hist-tab.active {
+  background: var(--accent);
+  color: #000;
+}
+
+
+/* ─── Modal Toggle (Sets/Reps ↔ Duration) ─────────────────── */
+.ex-modal-toggle {
+  display: flex;
+  background: var(--bg-input);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  margin-bottom: var(--space-4);
+}
+
+.ex-modal-toggle__btn {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.ex-modal-toggle__btn.active {
+  background: var(--accent);
+  color: #000;
+}

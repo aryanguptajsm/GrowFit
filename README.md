@@ -54,7 +54,7 @@ GrowFit/
 
 - [x] Stage 1: Dashboard UI
 - [x] Stage 2: Navigation & page sections
-- [ ] Stage 3: Exercise tracking
+- [x] Stage 3: Exercise tracking
 - [ ] Stage 4: Nutrition tracking
 - [ ] Stage 5: Progress charts
 - [x] Stage 6: Journal
