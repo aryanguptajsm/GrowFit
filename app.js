@@ -8,7 +8,7 @@
 const STORAGE_KEYS = {
   workouts: 'growfit_workouts',     // { "2026-09-12": { exercises: [...], restDay: false } }
   weightRecords: 'growfit_weight',  // [{ date, weight, height }]
-  settings: 'growfit_settings'      // { units: 'kg' }
+  settings: 'growfit_settings'      // { startDate: '2026-09-13', units: 'kg' }
 };
 
 function loadData(key) {
@@ -176,6 +176,15 @@ function calculatePersonalRecords() {
   return records;
 }
 
+
+function getStartDate() {
+  const settings = loadData(STORAGE_KEYS.settings) || {};
+  if (!settings.startDate) {
+    settings.startDate = todayStr();
+    saveData(STORAGE_KEYS.settings, settings);
+  }
+  return new Date(settings.startDate + 'T00:00:00');
+}
 
 // ─── UUID Generator ────────────────────────────────────────
 function uid() {
@@ -356,12 +365,17 @@ function renderWeeklyTracker() {
     const hasExercise = w && w.exercises && w.exercises.length > 0;
 
     let state, icon;
+    const startDate = getStartDate();
+    startDate.setHours(0, 0, 0, 0);
+
     if (isFuture) {
       state = 'future'; icon = '○';
     } else if (hasExercise) {
       state = 'done'; icon = '✓';
     } else if (isToday) {
       state = 'future'; icon = '○'; // today not yet done
+    } else if (d < startDate) {
+      state = 'future'; icon = '○'; // before app install
     } else {
       state = 'missed'; icon = '✕';
     }
@@ -447,10 +461,16 @@ function renderCalendar() {
     let cellClass = 'calendar__cell';
     if (isToday) cellClass += ' calendar__cell--today';
 
+    const startDate = getStartDate();
+    startDate.setHours(0, 0, 0, 0);
+
     if (isFuture) {
       cellClass += ' calendar__cell--future';
     } else if (hasExercise) {
       cellClass += ' calendar__cell--done';
+    } else if (d < startDate && !isToday) {
+       // before app install, don't mark as missed
+       cellClass += ' calendar__cell--future';
     } else if (!isToday) {
       cellClass += ' calendar__cell--missed';
     }
@@ -911,4 +931,13 @@ function confirmClear() {
   renderHome();
   renderExercisePage();
   renderProgressPage();
+}
+
+// ─── PWA Service Worker ────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(err => {
+      console.log('SW registration failed: ', err);
+    });
+  });
 }
