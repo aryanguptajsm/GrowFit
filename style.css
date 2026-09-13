@@ -576,12 +576,13 @@ canvas {
 }
 
 .calendar__cell {
-  aspect-ratio: 1;
+  width: 100%;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-sm);
-  font-size: var(--font-sm);
+  font-size: var(--font-xs);
   font-weight: 500;
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -604,9 +605,9 @@ canvas {
 .calendar__cell--done::after {
   content: '';
   position: absolute;
-  bottom: 4px;
-  width: 4px;
-  height: 4px;
+  bottom: 2px;
+  width: 3px;
+  height: 3px;
   border-radius: var(--radius-full);
   background: var(--accent);
 }
@@ -618,9 +619,9 @@ canvas {
 .calendar__cell--missed::after {
   content: '';
   position: absolute;
-  bottom: 4px;
-  width: 4px;
-  height: 4px;
+  bottom: 2px;
+  width: 3px;
+  height: 3px;
   border-radius: var(--radius-full);
   background: var(--error);
   opacity: 0.5;
