@@ -1233,3 +1233,61 @@ canvas {
     --max-width: 560px;
   }
 }
+
+/* ─── Calendar Popover ─────────────────────────────────────── */
+.calendar-popover {
+  position: absolute;
+  z-index: 1000;
+  width: 260px;
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px) scale(0.95);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  display: none;
+}
+.calendar-popover.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+.popover-header {
+  font-weight: 600;
+  font-size: var(--font-sm);
+  color: var(--accent);
+  margin-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-2);
+}
+.popover-body {
+  margin-bottom: var(--space-3);
+}
+.popover-exercise {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-sm);
+  margin-bottom: var(--space-1);
+}
+.popover-exercise__name {
+  color: var(--text-primary);
+}
+.popover-exercise__detail {
+  color: var(--text-secondary);
+  font-size: var(--font-xs);
+}
+.popover-empty {
+  color: var(--text-muted);
+  font-size: var(--font-sm);
+  text-align: center;
+}
+.btn-primary--small {
+  width: 100%;
+  padding: var(--space-2);
+  font-size: var(--font-sm);
+}
