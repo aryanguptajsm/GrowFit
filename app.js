@@ -591,7 +591,7 @@ function renderExercisePage() {
   };
 
   // FAB button
-  document.getElementById('btn-add-exercise').onclick = openAddExerciseModal;
+  document.getElementById('btn-add-exercise').onclick = () => openAddExerciseModal(null);
 }
 
 function formatExerciseDetail(ex) {
@@ -621,10 +621,24 @@ function openAddExerciseModal(editIndex = null) {
   }
 
   const html = `
+    <datalist id="exercise-suggestions">
+      <option value="Push-ups"></option>
+      <option value="Pull-ups"></option>
+      <option value="Squats"></option>
+      <option value="Sit-ups"></option>
+      <option value="Lunges"></option>
+      <option value="Plank"></option>
+      <option value="Burpees"></option>
+      <option value="Running"></option>
+      <option value="Cycling"></option>
+      <option value="Bench Press"></option>
+      <option value="Deadlift"></option>
+      <option value="Bicep Curls"></option>
+    </datalist>
     <form id="exercise-form">
       <div class="form-group">
         <label class="form-label" for="ex-name">Exercise Name</label>
-        <input class="form-input" id="ex-name" type="text" placeholder="e.g. Push-ups" value="${existing ? existing.name : ''}" required autocomplete="off">
+        <input class="form-input" id="ex-name" type="text" list="exercise-suggestions" placeholder="e.g. Push-ups" value="${existing ? existing.name : ''}" required autocomplete="off">
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -672,6 +686,7 @@ function openAddExerciseModal(editIndex = null) {
     };
 
     const workout = getWorkoutForDate(todayStr()) || { exercises: [], restDay: false };
+    if (!workout.exercises) workout.exercises = [];
 
     if (isEdit) {
       workout.exercises[editIndex] = exercise;
