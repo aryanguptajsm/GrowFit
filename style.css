@@ -6,11 +6,14 @@
 /* ─── CSS Custom Properties (Design Tokens) ───────────────── */
 :root {
   /* Background */
-  --bg-primary: #09090b; /* slate 950 */
-  --bg-secondary: #020617; /* slate 950 darker */
-  --bg-card: rgba(30, 41, 59, 0.4); /* slate 800 with opacity */
-  --bg-elevated: rgba(30, 41, 59, 0.7);
-  --bg-input: rgba(15, 23, 42, 0.6);
+  --bg-primary: #161616;
+  /* slate 950 */
+  --bg-secondary: #2b2b2b;
+  /* slate 950 darker */
+  --bg-card: rgba(43, 43, 43, 0.4);
+  /* slate 800 with opacity */
+  --bg-elevated: rgba(40, 40, 40, 0.7);
+  --bg-input: rgba(39, 39, 39, 0.6);
 
   /* Accent — Emerald / Green */
   --accent: #10b981;
