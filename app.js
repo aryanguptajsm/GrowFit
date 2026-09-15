@@ -368,14 +368,21 @@ function renderWeeklyTracker() {
     const startDate = getStartDate();
     startDate.setHours(0, 0, 0, 0);
 
+    let heatLevel = 0;
+    if (w && w.exercises) {
+      if (w.exercises.length === 1) heatLevel = 1;
+      else if (w.exercises.length === 2) heatLevel = 2;
+      else if (w.exercises.length >= 3) heatLevel = 3;
+    }
+
     if (isFuture) {
       state = 'future'; icon = '○';
     } else if (hasExercise) {
-      state = 'done'; icon = '✓';
+      state = `heat-level-${heatLevel}`; icon = '✓';
     } else if (isToday) {
-      state = 'future'; icon = '○'; // today not yet done
+      state = 'future'; icon = '○';
     } else if (d < startDate) {
-      state = 'future'; icon = '○'; // before app install
+      state = 'future'; icon = '○';
     } else {
       state = 'missed'; icon = '✕';
     }
@@ -392,11 +399,9 @@ function renderWeeklyTracker() {
 
   container.innerHTML = html;
 
-  // Tap a day to view exercises
   container.querySelectorAll('.week-day').forEach(el => {
-    el.addEventListener('click', () => {
-      const dateKey = el.dataset.date;
-      showDayDetail(dateKey);
+    el.addEventListener('click', (e) => {
+      showDayPopover(el.dataset.date, el);
     });
   });
 }
@@ -458,6 +463,13 @@ function renderCalendar() {
     const w = workouts[key];
     const hasExercise = w && w.exercises && w.exercises.length > 0;
 
+    let heatLevel = 0;
+    if (w && w.exercises) {
+      if (w.exercises.length === 1) heatLevel = 1;
+      else if (w.exercises.length === 2) heatLevel = 2;
+      else if (w.exercises.length >= 3) heatLevel = 3;
+    }
+
     let cellClass = 'calendar__cell';
     if (isToday) cellClass += ' calendar__cell--today';
 
@@ -467,9 +479,8 @@ function renderCalendar() {
     if (isFuture) {
       cellClass += ' calendar__cell--future';
     } else if (hasExercise) {
-      cellClass += ' calendar__cell--done';
+      cellClass += ` calendar__cell--done heat-level-${heatLevel}`;
     } else if (d < startDate && !isToday) {
-       // before app install, don't mark as missed
        cellClass += ' calendar__cell--future';
     } else if (!isToday) {
       cellClass += ' calendar__cell--missed';
@@ -483,8 +494,8 @@ function renderCalendar() {
 
   // Tap a date to view
   container.querySelectorAll('.calendar__cell:not(.calendar__cell--empty)').forEach(el => {
-    el.addEventListener('click', () => {
-      showDayDetail(el.dataset.date);
+    el.addEventListener('click', (e) => {
+      showDayPopover(el.dataset.date, el);
     });
   });
 
@@ -502,8 +513,22 @@ function renderCalendar() {
 }
 
 
-// ─── Day Detail Modal ──────────────────────────────────────
-function showDayDetail(dateStr) {
+// ─── Day Detail Popover ──────────────────────────────────────
+function showDayPopover(dateStr, element) {
+  let popover = document.getElementById('calendar-popover');
+  if (!popover) {
+    popover = document.createElement('div');
+    popover.id = 'calendar-popover';
+    popover.className = 'calendar-popover';
+    document.body.appendChild(popover);
+    
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.calendar__cell') && !e.target.closest('.week-day') && !e.target.closest('#calendar-popover')) {
+        popover.classList.remove('active');
+      }
+    });
+  }
+
   const d = new Date(dateStr + 'T00:00:00');
   const readable = formatDateReadable(d);
   const workout = getWorkoutForDate(dateStr);
@@ -511,18 +536,39 @@ function showDayDetail(dateStr) {
   let body = '';
   if (workout && workout.exercises && workout.exercises.length > 0) {
     body = workout.exercises.map(ex => `
-      <div class="exercise-item" style="pointer-events:none;">
-        <div class="exercise-item__info">
-          <div class="exercise-item__name">${ex.name}</div>
-          <div class="exercise-item__detail">${formatExerciseDetail(ex)}</div>
-        </div>
+      <div class="popover-exercise">
+        <span class="popover-exercise__name">${ex.name}</span>
+        <span class="popover-exercise__detail">${formatExerciseDetail(ex)}</span>
       </div>
     `).join('');
   } else {
-    body = `<p style="color: var(--text-muted); text-align: center; padding: 24px 0;">No exercises recorded.</p>`;
+    body = `<p class="popover-empty">No exercises recorded.</p>`;
   }
 
-  openModal(readable, body);
+  popover.innerHTML = `
+    <div class="popover-header">${readable}</div>
+    <div class="popover-body">${body}</div>
+    <div class="popover-actions">
+      <button class="btn-primary btn-primary--small" onclick="document.getElementById('calendar-popover').classList.remove('active'); openAddExerciseModal(null, '${dateStr}')">Log for this date</button>
+    </div>
+  `;
+
+  const rect = element.getBoundingClientRect();
+  popover.style.display = 'block';
+  // simple positioning logic
+  setTimeout(() => {
+    popover.classList.add('active');
+    const popoverRect = popover.getBoundingClientRect();
+    let top = rect.top - popoverRect.height - 10;
+    if (top < 0) top = rect.bottom + 10; // show below if not enough space
+    
+    let left = rect.left + (rect.width / 2) - (popoverRect.width / 2);
+    if (left < 10) left = 10;
+    if (left + popoverRect.width > window.innerWidth - 10) left = window.innerWidth - popoverRect.width - 10;
+    
+    popover.style.top = top + 'px';
+    popover.style.left = left + 'px';
+  }, 10);
 }
 
 
@@ -611,12 +657,13 @@ function formatExerciseDetail(ex) {
 
 
 // ─── Add Exercise Modal ────────────────────────────────────
-function openAddExerciseModal(editIndex = null) {
+function openAddExerciseModal(editIndex = null, targetDateStr = null) {
   const isEdit = editIndex !== null;
+  const dateToSave = targetDateStr || todayStr();
   let existing = null;
 
   if (isEdit) {
-    const workout = getWorkoutForDate(todayStr());
+    const workout = getWorkoutForDate(dateToSave);
     existing = workout.exercises[editIndex];
   }
 
@@ -685,7 +732,7 @@ function openAddExerciseModal(editIndex = null) {
       notes: document.getElementById('ex-notes').value.trim() || null
     };
 
-    const workout = getWorkoutForDate(todayStr()) || { exercises: [], restDay: false };
+    const workout = getWorkoutForDate(dateToSave) || { exercises: [], restDay: false };
     if (!workout.exercises) workout.exercises = [];
 
     if (isEdit) {
@@ -694,12 +741,12 @@ function openAddExerciseModal(editIndex = null) {
       workout.exercises.push(exercise);
     }
 
-    saveWorkoutForDate(todayStr(), workout);
+    saveWorkoutForDate(dateToSave, workout);
     closeModal();
     showToast(isEdit ? 'Exercise updated ✓' : 'Workout logged ✓');
 
     // Refresh everything
-    renderExercisePage();
+    if (dateToSave === todayStr()) renderExercisePage();
     renderHome();
   };
 }
